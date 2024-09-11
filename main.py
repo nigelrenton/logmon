@@ -35,10 +35,17 @@ class Session:
     def __init__(self, job):
         self.timectl = 0
         self.job = job
-        self.log = io.open(self.job['log'])
+        self.log = self.__open()
+        self.size = os.path.getsize(self.job['log'])
+    def __open(self):
+        log = io.open(self.job['log'])
+        log.seek(0, 2)
+        return log
     def __monitor(self):
-        self.log.seek(0, 2)
         while True:
+            if os.path.getsize(self.job['log']) < self.size:
+                self.log.close()
+                self.log = self.__open()
             line = self.log.readline()
             if line:
                 Process(line, self).parse()
