@@ -7,6 +7,8 @@ from jobs import jobs
 import io
 import os.path
 from smtp import Email, logmonEmail
+from http_requests import http_requests
+import requests
 import sys
 
 class Process:
@@ -24,12 +26,24 @@ class Process:
                         case 'email':
                             for recipient in self.session.job['email_recipients']:
                                 self.__send_mail(recipient)
+                        case 'http':
+                            for request in self.session.job['requests']:
+                                self.__requests(request)
     def __send_mail(self, recipient):
         em = logmonEmail(self.session.job, self.line)
         email = Email(em.subject, em.email, recipient)
         email.send()
+    def __requests(self, request):
+        req = http_requests[request]
+        match req['method']:
+            case 'POST':
+                r = requests.post(url=req['url'], headers=req['headers'], data=req['data'])
+            case 'GET':
+                r = requests.get(url=req['url'], headers=req['headers'], data=req['data'])
     def parse(self):
         self.__parse()
+
+
 
 class Session:
     def __init__(self, job):
@@ -68,6 +82,14 @@ class ValidateJob:
             if len(self.job['email_recipients']) < 1:
                 print('No valid email recipients in job {}. Add recipients or remove email as alert type'.format(self.job['id']))
                 sys.exit()
+    def __requests(self):
+            if 'http' in self.job['alerts']:
+                if not self.job['requests']:
+                    print('Requests is specified in job {} as an alert type but no requests have been declared'.format(self.job['id']))
+                    sys.exit()
+                for request in self.job['requests']:
+                    if not http_requests[request]:
+                        print('Request {} not found in http_requests.py for job {}.'.format(request, self.job['id']))
 
 def main():
     print('LOGMON STARTED: {}'.format(datetime.now().isoformat()))
