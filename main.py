@@ -43,10 +43,9 @@ class Process:
                 r = requests.post(url=req['url'], headers=headers, data=data)
             case 'GET':
                 r = requests.get(url=req['url'], headers=headers, data=data)
+                print(r.text)
     def parse(self):
         self.__parse()
-
-
 
 class Session:
     def __init__(self, job):
