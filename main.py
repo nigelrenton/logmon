@@ -79,10 +79,8 @@ def main():
         session = Session(jobs[job])
         thread = threading.Thread(target=session.run)
         threads.append(thread)
+        print('Starting job {}: log {} for {}'.format(job, jobs[job]['log'], jobs[job]['conditions']))
         thread.start()
-
-def test(n):
-    print(n)
 
 if __name__ == "__main__":
     main()
