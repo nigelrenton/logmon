@@ -36,13 +36,11 @@ class Process:
         email.send()
     def __requests(self, request):
         req = http_requests[request]
-        headers = json.loads(req['headers'])
-        data = json.loads(req['data'])
         match req['method']:
             case 'POST':
-                r = requests.post(url=req['url'], headers=headers, data=data)
+                r = requests.post(url=req['url'], headers=req['headers'], data=req['data'])
             case 'GET':
-                r = requests.get(url=req['url'], headers=headers, data=data)
+                r = requests.get(url=req['url'], headers=req['headers'], data=req['data'])
                 print(r.text)
     def parse(self):
         self.__parse()
